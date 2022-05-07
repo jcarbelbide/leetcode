@@ -1,4 +1,6 @@
 
+from collections import deque
+
 # Definition for a Node.
 class Node(object):
     def __init__(self, val = 0, neighbors = None):
@@ -14,26 +16,28 @@ class Solution(object):
         :rtype: Node
         """
 
-        hist = {}
-        cloneHead = Node(node.val)
+        if not node:
+            return None
 
-        def dfs(node, cloneNode):
-            if node in hist:
-                return
+        clone_head = Node(node.val)
+        hist = {node.val: clone_head}
+        q_clone = deque()
+        q_origin = deque()
+        q_clone.append(clone_head)
+        q_origin.append(node)
 
-            hist[node] = cloneNode
+        while q_origin:
+            clone_node = q_clone.popleft()
+            origin_node = q_origin.popleft()
 
-            for i in range(len(cloneNode.neighbors)):
-                if node[i] in hist:
-                    cloneNode.neighbors.append(hist[node[i]])
-                else:
-                    copy = Node(node[i].val)
-                    cloneNode.neighbors.append(copy)
-                    hist[node[i]] = copy
-                    dfs(node.neighbors[i], cloneNode.neighbors[i])
+            for nei in origin_node.neighbors:
+                if nei.val not in hist:
+                    hist[nei.val] = Node(nei.val)
+                    q_clone.append(hist[nei.val])
+                    q_origin.append(nei)
+                clone_node.neighbors.append(hist[nei.val])
 
-        dfs(node, cloneHead)
-        return cloneHead
+        return clone_head
 
 
 def print_node(node, hist):
